@@ -1,65 +1,34 @@
 const fs = require('fs')
-const { Transform } = require('stream')
+const readline = require('readline');
+
 const ACCESS_LOG = './access.log'
-const WRITE_LOG = './write.log'
-
-// const readStream = fs.createReadStream(
-//     ACCESS_LOG, 
-//     {
-//         flags: 'r',
-//         encoding: 'utf-8',
-//         autoClose: true,
-//         // start: 0,
-//         // end: 6,
-//         highWaterMark: 110,
-//     }
-// )
+const WRITE_IP_34 = './34-48-240-111-requests.log'
+const WRITE_IP_89 = './89-123-1-41-requests.log'
 
 
+const readFile = readline.createInterface({
+    input: fs.createReadStream(ACCESS_LOG),
+    output: process.stdout,
+    console: false
+})
 
-// readStream.on('data', chunk => {
-//     console.log('*** - ', chunk);
-// })
-
-// const writeStream = fs.createWriteStream(
-//     ACCESS_LOG, 
-//     {
-//         encoding: 'utf-8',
-//         flags: 'a'
-//     }
-// )
-
-const readStream = fs.createReadStream(
-    ACCESS_LOG, 
-    {
-        flags: 'r',
-        encoding: 'utf-8',
-        autoClose: true,
-        // start: 0,
-        // end: 6,
-        highWaterMark: 10,
-    }
-)
-
-
-const writeStream = fs.createWriteStream(
-    WRITE_LOG, 
+const writeIp34 = fs.createWriteStream(
+    WRITE_IP_34, 
     {
         encoding: 'utf-8',
         flags: 'a'
     }
 )
 
-const tStream = new Transform({
-    transform(chunk, encoding, callback) {
-        const transformed = "---- *** " + chunk.toString()
-        this.push(transformed)
-        if(transformed.includes('127.0.0.1')) {
-            writeStream.write(transformed);
-        }
-        
-        callback()
+const writeIp89 = fs.createWriteStream(
+    WRITE_IP_89, 
+    {
+        encoding: 'utf-8',
+        flags: 'a'
     }
-})
+)
 
-readStream.pipe(tStream).pipe(process.stdout);
+readFile.on('line', function(line) {
+    if(/34\.48\.240\.111/.test(line)) writeIp34.write(`${line}\n`);
+    if(/89\.123\.1\.41/.test(line)) writeIp89.write(`${line}\n`);
+})
