@@ -1,29 +1,34 @@
 const fs = require('fs')
-const fsPromises = require('fs/promises')
-const ACCESS_LOG = './string.log'
+const readline = require('readline');
 
-const readStream = fs.createReadStream(
-    ACCESS_LOG, 
-    {
-        flags: 'r',
-        encoding: 'utf-8',
-        // autoClose: true,
-        // start,
-        // end,
-        highWaterMark: 64,
-    }
-)
+const ACCESS_LOG = './access.log'
+const WRITE_IP_34 = './34-48-240-111-requests.log'
+const WRITE_IP_89 = './89-123-1-41-requests.log'
 
-readStream.on('data', chunk => {
-    console.log('chunk - ', chunk);
+
+const readFile = readline.createInterface({
+    input: fs.createReadStream(ACCESS_LOG),
+    output: process.stdout,
+    console: false
 })
 
-const writeStream = fs.createWriteStream(
-    ACCESS_LOG, 
+const writeIp34 = fs.createWriteStream(
+    WRITE_IP_34, 
     {
         encoding: 'utf-8',
         flags: 'a'
     }
 )
 
+const writeIp89 = fs.createWriteStream(
+    WRITE_IP_89, 
+    {
+        encoding: 'utf-8',
+        flags: 'a'
+    }
+)
 
+readFile.on('line', function(line) {
+    if(/34\.48\.240\.111/.test(line)) writeIp34.write(`${line}\n`);
+    if(/89\.123\.1\.41/.test(line)) writeIp89.write(`${line}\n`);
+})
